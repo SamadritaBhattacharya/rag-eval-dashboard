@@ -7,10 +7,12 @@
 3. Golden dataset changes require a commit message explaining WHY.
 4. `main` is always deployable. If a commit breaks main, revert first, fix second.
 5. No feature without a phase in GOALS.md that calls for it.
+6. Act Like a Principle Staff AI Engineer to write production ready scalable codes. Use sys design principles like SOLID, OOPs and all when needed.
 
 ## Definition of Done — For Every Feature
 
 A feature is DONE when:
+
 - Code is written and formatted (ruff + black backend, prettier frontend).
 - Tests exist and pass locally.
 - Types check clean (mypy backend, tsc frontend).
@@ -22,6 +24,7 @@ A feature is DONE when:
 ## Backend Standards
 
 ### Structure
+
 - FastAPI route handlers are thin. They validate input, call a service, return a response.
 - All business logic in `services/`. Services are pure Python classes, testable
   without spinning up FastAPI.
@@ -29,6 +32,7 @@ A feature is DONE when:
   fully decoupled from FastAPI.
 
 ### Errors
+
 - Custom exception classes in `core/errors.py`: `RetrievalError`, `GenerationError`,
   `JudgeError`, `GoldenDatasetError`, `ConfigError`.
 - Route handlers translate exceptions to HTTP responses in a single
@@ -37,22 +41,26 @@ A feature is DONE when:
   to be logged and surface as 500.
 
 ### Configuration
+
 - All config via a Pydantic Settings class, loaded from env at startup.
 - No `os.getenv` scattered through code.
 - Config class validated on startup — missing required vars fail fast.
 
 ### Logging
+
 - structlog with JSON output.
 - Every log line has: level, timestamp, event, and context fields.
 - Trace IDs propagate through the eval run so a single run's logs are filterable.
 
 ### LLM Calls
+
 - All Groq calls go through a single `GroqClient` wrapper.
 - Wrapper handles: retry with backoff, rate-limit awareness, cost estimation,
   Langfuse tracing, error normalization.
 - No direct `groq.Groq(...)` calls anywhere else in the codebase.
 
 ### Rate Limits
+
 - Verify Groq's current published free-tier limits at signup (they change over time).
 - The `GroqClient` wrapper enforces a client-side rate limiter (aiolimiter) at 80%
   of the published limit to leave headroom.
@@ -62,12 +70,14 @@ A feature is DONE when:
 ## Frontend Standards
 
 ### Components
+
 - Server Components for anything that doesn't need interaction.
 - Client Components ('use client') only when necessary: state, event handlers,
   browser APIs.
 - Every Client Component under 200 lines. Break up earlier.
 
 ### Styling
+
 - Tailwind utility classes directly in JSX. No `@apply` in CSS files (Tailwind's
   own recommendation).
 - Design tokens via Tailwind config extend, not hardcoded hex values.
@@ -75,18 +85,21 @@ A feature is DONE when:
   into `components/ui/` per shadcn convention.
 
 ### Data Fetching
+
 - Server Components use `fetch()` with Next.js caching directives.
 - Client Components use SWR with a shared `swrConfig` (dedup interval, revalidate
   on focus).
 - All API responses typed in `lib/api-types.ts`. Never `any`.
 
 ### Charts
+
 - Recharts for standard charts (bar, line, area).
 - One chart, one component. No god-charts with 10 responsibilities.
 
 ## Testing
 
 ### Backend
+
 - pytest with pytest-asyncio.
 - Fixtures in `tests/conftest.py`. Shared: test client, mock Groq client,
   temp ChromaDB.
@@ -97,11 +110,13 @@ A feature is DONE when:
   Snapshot updates require explicit review.
 
 ### Frontend
+
 - Vitest + React Testing Library.
 - Test the interactive behavior, not the markup.
 - No snapshot tests for JSX — brittle, low value.
 
 ### CI
+
 - GitHub Actions.
 - On PR: lint, type-check, unit tests, build.
 - On merge to main (Phase 3 onward): full eval run against golden dataset.
@@ -110,12 +125,14 @@ A feature is DONE when:
 ## Git Discipline
 
 ### Branches
+
 - `main` — always deployable.
 - `feat/<slug>` — one feature per branch.
 - `fix/<slug>` — bug fixes.
 - `chore/<slug>` — non-functional (deps, config, docs).
 
 ### Commits
+
 - Conventional format: `<type>(<scope>): <subject>`.
 - Scopes: `backend`, `frontend`, `pipeline`, `eval`, `golden`, `infra`, `docs`.
 - Subject: imperative mood, no period. "add hybrid retriever" not "added hybrid retriever."
@@ -123,6 +140,7 @@ A feature is DONE when:
 - Footer (if needed): "Closes #12" for linked issues.
 
 ### PR Rules
+
 - One PR = one logical change.
 - Description explains: what, why, how to verify, screenshots for UI.
 - Self-review the diff before requesting review.

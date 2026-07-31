@@ -1,0 +1,38 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---- Secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- Project artifacts (regenerable — never commit) ----
+corpus/
+chunks/
+chroma_db/
+eval_runs/
+
+# ---- Node / Next.js (frontend, added later) ----
+node_modules/
+.next/
+out/
+.vercel/
+
+# ---- Editor / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
